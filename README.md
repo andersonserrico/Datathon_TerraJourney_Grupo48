@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/maikej910-del/notebooks-Grupo_45/main/logo.jpeg" alt="Logo Terra Fita" width="250">
+  <img src="https://github.com/andersonserrico/Datathon_TerraJourney_Grupo48/blob/main/extrainfo/TerraJourney_logo_branco.svg" alt="Logo Terra Journey" width="300">
 </div>
 
-# 🏥 Terra Journey: Sistema Preditivo de Jornada para a vida!
+# [Escola] Terra Journey: Sistema Preditivo da jornada de ensino!
 
 ## Datathon FIAP (Fase 5) - Grupo 48
 
