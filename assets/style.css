@@ -1,0 +1,248 @@
+:root {
+    --cor-primaria: {{COR_PRIMARIA}};
+    --cor-primaria-escura: {{COR_PRIMARIA_ESCURA}};
+    --cor-primaria-clara: {{COR_PRIMARIA_CLARA}};
+
+    --cor-secundaria: {{COR_SECUNDARIA}};
+    --cor-secundaria-escura: {{COR_SECUNDARIA_ESCURA}};
+    --cor-secundaria-clara: {{COR_SECUNDARIA_CLARA}};
+
+    --cor-fundo: {{COR_FUNDO}};
+    --cor-fundo-secundario: {{COR_FUNDO_SECUNDARIO}};
+    --cor-card: {{COR_CARD}};
+    --cor-card-hover: {{COR_CARD_HOVER}};
+
+    --cor-texto: {{COR_TEXTO}};
+    --cor-texto-secundario: {{COR_TEXTO_SECUNDARIO}};
+    --cor-borda: {{COR_BORDA}};
+}
+
+
+.stApp {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+[data-testid='stSidebar'] {
+    background-color: var(--cor-fundo-secundario);
+    border-right: 1px solid var(--cor-borda);
+}
+
+
+[data-testid='stSidebarNav'] a[aria-current='page'] {
+    background-color: var(--cor-primaria-escura);
+    color: var(--cor-texto);
+}
+
+
+.sidebar-rodape {
+    text-align: center;
+    color: var(--cor-texto-secundario);
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   TÍTULOS STREAMLIT
+   ========================================================= */
+
+[data-testid='stHeadingWithActionElements'] h1 {
+    color: var(--cor-primaria);
+}
+
+
+[data-testid='stHeadingWithActionElements'] h2 {
+    color: var(--cor-primaria);
+}
+
+
+[data-testid='stHeadingWithActionElements'] h3 {
+    color: var(--cor-secundaria);
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.hero {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 35px;
+}
+
+
+.hero-subtitulo {
+    margin-top: 18px;
+    text-align: center;
+    color: var(--cor-secundaria);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+
+/* =========================================================
+   DESCRIÇÃO CENTRAL
+   ========================================================= */
+
+.descricao-central {
+    text-align: center;
+    font-size: 17px;
+    line-height: 1.7;
+    max-width: 850px;
+    margin: 0 auto 25px auto;
+    color: var(--cor-texto-secundario);
+}
+
+
+.descricao-central h2 {
+    color: var(--cor-texto);
+    font-size: 32px;
+    margin-bottom: 14px;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.card {
+    border: 1px solid var(--cor-borda);
+    border-radius: 14px;
+    padding: 24px;
+    min-height: 220px;
+    background-color: var(--cor-card);
+
+    transition:
+        transform 0.20s ease,
+        border-color 0.20s ease,
+        background-color 0.20s ease,
+        box-shadow 0.20s ease;
+}
+
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: var(--cor-secundaria);
+    background-color: var(--cor-card-hover);
+
+    box-shadow:
+        0 8px 24px rgba(204, 177, 118, 0.16);
+}
+
+
+.card-destaque {
+    border-top: 4px solid var(--cor-primaria-clara);
+}
+
+
+.card-icone {
+    font-size: 38px;
+    margin-bottom: 12px;
+}
+
+
+.card-titulo {
+    color: var(--cor-secundaria);
+    font-size: 23px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+
+.card-texto {
+    color: var(--cor-texto-secundario);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   DESTAQUE DAS ANÁLISES
+   ========================================================= */
+
+.analise-destaque {
+    background-color: var(--cor-card);
+    border-left: 4px solid var(--cor-secundaria-clara);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+
+    color: var(--cor-texto-secundario);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+
+.analise-destaque strong {
+    color: var(--cor-texto-secundario);
+    font-weight: 700;
+}
+
+.analise-titulo {
+    color: var(--cor-secundaria-clara);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   RODAPÉ
+   ========================================================= */
+
+.rodape {
+    text-align: center;
+    color: var(--cor-texto-secundario);
+    font-size: 14px;
+    line-height: 1.8;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+
+
+.rodape strong {
+    color: var(--cor-secundaria);
+}
+
+
+/* =========================================================
+   DIVISORES
+   ========================================================= */
+
+hr {
+    border: none !important;
+    border-top: 1px solid var(--cor-secundaria) !important;
+    opacity: 0.65;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+
+/* =========================================================
+   BOTÕES
+   ========================================================= */
+
+.stButton > button {
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto);
+    border: 1px solid var(--cor-primaria-clara);
+}
+
+
+.stButton > button:hover {
+    background-color: var(--cor-primaria-escura);
+    border-color: var(--cor-secundaria);
+    color: var(--cor-texto);
+}
