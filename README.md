@@ -1,205 +1,245 @@
-# 📊 Datathon FIAP – Análise Educacional
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andersonserrico/Datathon_TerraJourney_Grupo48/main/extrainfo/TerraJourney_logo_branco.svg" alt="TerraJourney" width="350">
+</div>
 
-## 📖 Sobre o Projeto
+🌎 TerraJourney — Plataforma de Inteligência Educacional
 
-Este projeto foi desenvolvido como parte do **Datathon FIAP**, utilizando dados da **Associação Passos Mágicos** para analisar o desempenho acadêmico, indicadores educacionais e fatores que influenciam a evolução dos alunos.
+FIAP Datathon 2026 • Grupo 48
 
-A aplicação foi construída com **Streamlit**, permitindo a exploração interativa dos dados por meio de análises, dashboards e modelos de Machine Learning.
+O TerraJourney é uma plataforma de inteligência educacional desenvolvida para o Datathon FIAP 2026, utilizando dados da Associação Passos Mágicos.
 
----
+O projeto transforma dados educacionais em informações estratégicas por meio de tratamento e análise de dados, visualizações interativas e técnicas de Machine Learning, permitindo compreender a trajetória dos estudantes e identificar fatores relacionados ao seu desenvolvimento acadêmico.
 
-## 🎯 Objetivos
+⸻
 
-- Realizar o tratamento e padronização da base de dados.
-- Explorar os indicadores educacionais.
-- Responder às perguntas de negócio propostas pelo Datathon.
-- Construir dashboards interativos.
-- Desenvolver modelo preditivo para apoio à tomada de decisão.
+🎯 Missão
 
----
+Impulsionar a Jornada do Conhecimento por meio da análise de dados educacionais, transformando informações em conhecimento estratégico para identificar oportunidades de desenvolvimento e fortalecer iniciativas que ampliem o impacto da educação na vida dos estudantes.
 
-# 🚀 Tecnologias Utilizadas
+⸻
 
-- Python
-- Streamlit
-- Pandas
-- NumPy
-- Plotly
-- Scikit-learn
-- XGBoost
+🔭 Visão
 
----
+Conduzir a jornada do dado ao conhecimento, promovendo análises eficientes e inovadoras que apoiem decisões mais assertivas e ampliem as oportunidades de desenvolvimento dos estudantes.
 
-# 📂 Estrutura do Projeto
+⸻
 
-```text
-Datathon/
-│
+📊 Indicadores Educacionais
+
+As análises do TerraJourney exploram os principais indicadores disponibilizados pela Associação Passos Mágicos:
+
+Indicador	Descrição
+IAN	Indicador de Adequação de Nível
+IDA	Indicador de Desempenho Acadêmico
+IEG	Indicador de Engajamento
+IAA	Indicador de Autoavaliação
+IPS	Indicador Psicossocial
+IPP	Indicador Psicopedagógico
+IPV	Indicador de Ponto de Virada
+INDE	Índice do Desenvolvimento Educacional
+
+⸻
+
+🔎 Análises Desenvolvidas
+
+A plataforma apresenta análises voltadas às principais questões educacionais propostas pelo Datathon.
+
+1. Defasagem Escolar — IAN
+
+Análise da evolução da adequação dos estudantes às suas respectivas fases escolares, classificando-os em:
+
+* Adequado (Em Fase);
+* Defasagem Moderada;
+* Defasagem Severa.
+
+2. Desempenho Acadêmico — IDA
+
+Avaliação da evolução do desempenho acadêmico dos estudantes ao longo das fases e dos anos.
+
+3. Engajamento — IEG
+
+Análise da relação entre o engajamento dos estudantes e:
+
+* Desempenho Acadêmico (IDA);
+* Ponto de Virada (IPV).
+
+4. Autoavaliação — IAA
+
+Avaliação da coerência entre a percepção dos estudantes sobre si mesmos e seus resultados acadêmicos e de engajamento.
+
+5. Aspectos Psicossociais — IPS
+
+Análise longitudinal para identificar se resultados psicossociais podem anteceder quedas futuras no desempenho ou no engajamento.
+
+6. Aspectos Psicopedagógicos — IPP
+
+Comparação das avaliações psicopedagógicas com os níveis de defasagem identificados pelo IAN.
+
+7. Ponto de Virada — IPV
+
+Análise dos indicadores que apresentam maior associação com o Ponto de Virada dos estudantes.
+
+8. Nota Global — INDE
+
+Avaliação da relação dos diferentes indicadores educacionais com o INDE.
+
+9. Efetividade do Programa
+
+Análise da progressão da Nota Global (INDE) ao longo das fases do programa, permitindo observar a evolução dos estudantes durante sua jornada educacional.
+
+⸻
+
+📈 Dashboard
+
+O TerraJourney possui um dashboard interativo desenvolvido com Streamlit e Plotly.
+
+O dashboard permite explorar visualmente informações da base educacional por meio de gráficos interativos e indicadores consolidados.
+
+As visualizações seguem uma identidade visual própria do TerraJourney e foram estruturadas através de uma pipeline reutilizável de gráficos.
+
+⸻
+
+🤖 Modelo Preditivo
+
+A plataforma também prevê uma área dedicada à aplicação de técnicas de Machine Learning.
+
+O objetivo é utilizar os indicadores educacionais para desenvolver modelos capazes de apoiar a identificação de padrões e oportunidades de intervenção na trajetória dos estudantes.
+
+⸻
+
+🛠️ Tecnologias Utilizadas
+
+O projeto utiliza principalmente:
+
+* Python
+* Streamlit
+* Pandas
+* NumPy
+* Plotly
+* Scikit-learn
+* Statsmodels
+* OpenPyXL
+
+⸻
+
+📂 Estrutura do Projeto
+
+Datathon_TerraJourney_Grupo48/
+
 ├── app.py
 ├── README.md
 ├── requirements.txt
+├── .gitignore
+│
+├── .streamlit/
+│   └── config.toml
 │
 ├── assets/
+│   └── style.css
 │
 ├── dados/
+│   ├── BASE_DATATHON_2024.xlsx
+│   └── PEDE_Dados_Unificados.csv
+│
+├── extrainfo/
+│   └── TerraJourney_logo_branco.svg
 │
 ├── notebooks/
+│   └── Tratamento_base.ipynb
 │
-├── pages/
+├── paginas/
 │   ├── home.py
-│   ├── analise_exploratoria.py
+│   ├── analises.py
 │   ├── dashboard.py
-│   └── modelos.py
+│   └── modelo.py
 │
 └── utils/
-```
+├── init.py
+├── componentes.py
+├── graficos.py
+└── tema.py
 
----
+⸻
 
-# 🖥️ Estrutura da Aplicação
+🖥️ Estrutura da Aplicação
 
-A aplicação está organizada em quatro páginas principais.
+A aplicação está organizada em quatro áreas principais:
 
-## 🏠 Home
+🏠 Home
 
-A página inicial apresenta uma visão geral do projeto.
+Apresentação do TerraJourney, contexto do projeto, missão, visão e principais funcionalidades da plataforma.
 
-Ela contém:
+📊 Análises
 
-- Contexto do desafio;
-- Objetivos;
-- Descrição da base de dados;
-- Tecnologias utilizadas;
-- Organização da aplicação.
+Exploração dos indicadores educacionais e respostas às questões analíticas propostas pelo Datathon.
 
----
+📈 Dashboard
 
-## 📈 Análise Exploratória
+Visualizações interativas que facilitam a exploração e interpretação dos dados educacionais.
 
-Nesta página são apresentadas as análises realizadas sobre a base de dados.
+🤖 Modelo Preditivo
 
-Entre elas:
+Área destinada à aplicação e apresentação das técnicas de Machine Learning utilizadas no projeto.
 
-- Estatísticas descritivas;
-- Distribuições das variáveis;
-- Correlações;
-- Evolução dos indicadores;
-- Comparações entre grupos;
-- Respostas às perguntas analíticas do Datathon.
+⸻
 
----
+▶️ Como executar o projeto
 
-## 📊 Dashboard
+1. Clone o repositório
 
-O Dashboard apresenta uma visão consolidada dos principais indicadores do projeto.
+git clone https://github.com/andersonserrico/Datathon_TerraJourney_Grupo48.git
 
-Nesta página são disponibilizados gráficos interativos para análise de:
+2. Entre no diretório
 
-- Quantidade de alunos;
-- Distribuição por gênero;
-- Distribuição por idade;
-- Instituições de ensino;
-- Indicadores educacionais;
-- Evolução dos resultados;
-- Demais métricas relevantes.
+cd Datathon_TerraJourney_Grupo48
 
-Todos os gráficos permitem interação utilizando Plotly.
+3. Crie um ambiente virtual
 
----
+macOS / Linux
 
-## 🤖 Modelos
-
-Esta página apresenta os modelos de Machine Learning desenvolvidos durante o projeto.
-
-São apresentados:
-
-- Pré-processamento dos dados;
-- Engenharia de atributos;
-- Modelos treinados;
-- Processo de treinamento;
-- Métricas de avaliação;
-- Comparação dos resultados.
-
----
-
-# 🧭 Navegação
-
-A estrutura da navegação no Streamlit está organizada da seguinte forma:
-
-```text
-Projeto
-└── 🏠 Home
-
-Análises
-├── 📈 Análise Exploratória
-└── 📊 Dashboard
-
-Modelos
-└── 🤖 Modelos
-```
-
----
-
-# ▶️ Como executar o projeto
-
-## 1. Clone o repositório
-
-```bash
-git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
-```
-
-## 2. Entre na pasta do projeto
-
-```bash
-cd Datathon
-```
-
-## 3. Crie um ambiente virtual (opcional)
-
-### Windows
-
-```bash
-python -m venv .venv
-
-.venv\Scripts\activate
-```
-
-### Linux / macOS
-
-```bash
 python3 -m venv .venv
-
 source .venv/bin/activate
-```
 
-## 4. Instale as dependências
+Windows
 
-```bash
+python -m venv .venv
+.venv\Scripts\activate
+
+4. Instale as dependências
+
 pip install -r requirements.txt
-```
 
-## 5. Execute a aplicação
+5. Execute o Streamlit
 
-```bash
 streamlit run app.py
-```
 
-Após a execução, o Streamlit abrirá automaticamente a aplicação no navegador.
+⸻
 
----
+📦 Dependências
 
-# 📌 Funcionalidades
+As principais dependências estão definidas no arquivo requirements.txt:
 
-- Interface desenvolvida em Streamlit;
-- Navegação por múltiplas páginas;
-- Análise Exploratória de Dados (EDA);
-- Dashboard interativo;
-- Visualizações utilizando Plotly;
-- Modelos de Machine Learning;
-- Código organizado de forma modular.
+* streamlit
+* pandas
+* plotly
+* numpy
+* openpyxl
+* scikit-learn
+* statsmodels
 
----
+⸻
 
-# 👥 Equipe
+👥 Equipe
 
-Projeto desenvolvido como parte do **Datathon FIAP**, aplicando técnicas de Ciência de Dados, Visualização de Dados e Machine Learning para análise de indicadores educacionais.
+FIAP Datathon 2026 — Grupo 48
+
+* Anderson — RM368309
+* Júlia — RM367721
+* Maike — RM367843
+* Rafaell — RM368753
+
+⸻
+
+🌎 TerraJourney
+
+Da jornada do dado ao conhecimento.
