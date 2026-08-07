@@ -611,7 +611,7 @@ if questionario_identificacao:
     calculo_iaa = calcular_iaa(idade)
 
     calculo_ips = calcular_ips()
-
+    
     calculo_ipp = calcular_ipp()
 
     calculo_ipv = calcular_ipv()
