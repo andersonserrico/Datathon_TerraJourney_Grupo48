@@ -1,5 +1,11 @@
 import streamlit as st
 import pandas as pd
+import joblib
+import numpy as np
+
+from scipy.stats import gaussian_kde
+
+from pathlib import Path
 
 from utils.componentes import carregar_estilos
 from utils.graficos import criar_grafico
@@ -8,6 +14,25 @@ from utils.tema import (
     COR_SECUNDARIA,
     COR_TERCIARIA
 )
+
+carregar_estilos()
+
+
+# ---------------------------------------------------------
+# Carregamento do artefato do modelo
+# ---------------------------------------------------------
+
+@st.cache_resource
+def carregar_artefato_modelo():
+    caminho_modelo = (
+        Path(__file__).resolve().parents[1]
+        / 'modelo'
+        / 'modelo_risco.pkl'
+    )
+
+    return joblib.load(caminho_modelo)
+
+artefato_modelo = carregar_artefato_modelo()
 
 carregar_estilos()
 
@@ -1122,6 +1147,348 @@ def analise_efetividade(dados):
         width='stretch'
     )
 
+# ---------------------------------------------------------
+# 10. Modelo Preditivo — Risco de Defasagem
+# ---------------------------------------------------------
+def analise_modelo(artefato_modelo):
+
+    st.subheader('Modelo Preditivo — Risco de Defasagem')
+
+    st.markdown(
+        '''
+        <div class="analise-destaque">
+            <span class="analise-titulo">Análise:</span>
+            O modelo preditivo de <strong>risco futuro de defasagem</strong>
+            utiliza os indicadores atuais do aluno para estimar a probabilidade
+            de apresentar defasagem no período seguinte.
+            As variáveis de maior importância no modelo são
+            <strong>IPP</strong>, <strong>Idade</strong> e
+            <strong>IAN</strong>.
+            O score probabilístico permite identificar e priorizar alunos
+            com maior risco, utilizando como referência o limiar de
+            <strong>50%</strong>.
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
+
+    # ---------------------------------------------------------
+    # Gráfico 1 — Importância das Variáveis
+    # ---------------------------------------------------------
+
+    df_importancias = (
+        artefato_modelo[
+            'importancia_features'
+        ]
+        .copy()
+    )
+
+    # Renomeando a variável para exibição
+    df_importancias[
+        'Indicador'
+    ] = (
+        df_importancias[
+            'Variavel'
+        ]
+    )
+
+    # Conversão para percentual
+    df_importancias[
+        'Importancia_Percentual'
+    ] = (
+        df_importancias[
+            'Importancia'
+        ]
+        * 100
+    )
+
+    # Texto para exibição
+    df_importancias[
+        'Importancia_Texto'
+    ] = (
+        df_importancias[
+            'Importancia_Percentual'
+        ]
+        .map(
+            lambda valor:
+                f'{valor:.1f}%'
+        )
+    )
+
+    # Identificação das 3 variáveis
+    # mais importantes
+    top3 = (
+        df_importancias
+        .nlargest(
+            3,
+            'Importancia'
+        )[
+            'Indicador'
+        ]
+        .tolist()
+    )
+
+    # Criação da categoria de destaque
+    df_importancias[
+        'Destaque'
+    ] = np.where(
+        df_importancias[
+            'Indicador'
+        ].isin(top3),
+        'Top 3',
+        'Demais'
+    )
+
+    # Ordenação para o gráfico horizontal
+    df_importancias = (
+        df_importancias
+        .sort_values(
+            'Importancia_Percentual',
+            ascending=True
+        )
+        .copy()
+    )
+
+    # Criação do gráfico
+    fig1 = criar_grafico(
+        tipo='bar_horizontal',
+        dados=df_importancias,
+        x='Importancia_Percentual',
+        y='Indicador',
+        color='Destaque',
+        texto='Importancia_Texto',
+        titulo='Importância das Variáveis no Risco Futuro',
+        mostrar_legenda=False,
+        color_map={
+            'Top 3': COR_SECUNDARIA,
+            'Demais': COR_PRIMARIA
+        }
+    )
+
+    # Texto dentro das barras
+    fig1.update_traces(
+        textposition='inside'
+    )
+
+    # ---------------------------------------------------------
+    # Gráfico 2 — Distribuição das Probabilidades
+    # ---------------------------------------------------------
+
+    probabilidades = np.array(
+        artefato_modelo[
+            'avaliacao'
+        ][
+            'probabilidades_teste'
+        ]
+    ) * 100
+
+    limiar = (
+        artefato_modelo[
+            'avaliacao'
+        ][
+            'limiar_classificacao'
+        ]
+        * 100
+    )
+
+    df_probabilidades = pd.DataFrame(
+        {
+            'Probabilidade': probabilidades
+        }
+    )
+
+    # Histograma
+    fig2 = criar_grafico(
+        tipo='hist',
+        dados=df_probabilidades,
+        x='Probabilidade',
+        titulo=(
+            'Probabilidade de Alunos entrarem '
+            'em Defasagem — Score de Risco'
+        ),
+        paleta=[
+            COR_PRIMARIA
+        ]
+    )
+
+    # ---------------------------------------------------------
+    # Curva KDE
+    # ---------------------------------------------------------
+
+    kde = gaussian_kde(
+        probabilidades
+    )
+
+    eixo_x = np.linspace(
+        probabilidades.min(),
+        probabilidades.max(),
+        200
+    )
+
+    densidade = kde(
+        eixo_x
+    )
+
+    numero_bins = 10
+
+    largura_bin = (
+        probabilidades.max()
+        - probabilidades.min()
+    ) / numero_bins
+
+    densidade_ajustada = (
+        densidade
+        * len(probabilidades)
+        * largura_bin
+    )
+
+    fig2.add_scatter(
+        x=eixo_x,
+        y=densidade_ajustada,
+        mode='lines',
+        name='Distribuição',
+        line=dict(
+            color=COR_SECUNDARIA,
+            width=3
+        )
+    )
+
+    # ---------------------------------------------------------
+    # Linha do ponto de corte
+    # ---------------------------------------------------------
+
+    fig2.add_vline(
+        x=limiar,
+        line_dash='dash',
+        line_color=COR_TERCIARIA,
+        annotation_text=(
+            f'Risco Crítico ({limiar:.0f}%)'
+        ),
+        annotation_position='top right'
+    )
+
+    # ---------------------------------------------------------
+    # Ajustes visuais
+    # ---------------------------------------------------------
+
+    fig2.update_layout(
+        xaxis_title=(
+            'Probabilidade Calculada pela I.A. (%)'
+        ),
+        yaxis_title='Quantidade de Alunos',
+        showlegend=True
+    )
+
+    # ---------------------------------------------------------
+    # Gráfico 3 — Distribuição das Idades e Taxa de Risco
+    # ---------------------------------------------------------
+
+    df_idade = (
+        artefato_modelo[
+            'analise_idade'
+        ]
+        .copy()
+    )
+
+    # Texto da taxa de risco
+    df_idade[
+        'Taxa_Risco_Texto'
+    ] = (
+        df_idade[
+            'Taxa_Risco'
+        ]
+        .map(
+            lambda valor:
+                f'{valor:.1f}%'
+        )
+    )
+
+    # Barras com quantidade de alunos
+    fig3 = criar_grafico(
+        tipo='bar',
+        dados=df_idade,
+        x='Idade',
+        y='Quantidade',
+        titulo=(
+            'Distribuição dos Alunos por Idade '
+            'e Taxa de Risco'
+        ),
+        texto='Quantidade',
+        paleta=[
+            COR_PRIMARIA
+        ]
+    )
+
+    # Linha da taxa de risco
+    fig3.add_scatter(
+        x=df_idade[
+            'Idade'
+        ],
+        y=df_idade[
+            'Taxa_Risco'
+        ],
+        mode='lines+markers',
+        name='Taxa de Risco',
+        line=dict(
+            color=COR_SECUNDARIA,
+            width=3
+        ),
+        marker=dict(
+            size=8
+        ),
+        yaxis='y2'
+    )
+
+    # Segundo eixo Y
+    fig3.update_layout(
+        yaxis=dict(
+            title='Quantidade de Alunos'
+        ),
+        yaxis2=dict(
+            title='Taxa de Risco (%)',
+            overlaying='y',
+            side='right',
+            range=[
+                0,
+                100
+            ]
+        ),
+        legend=dict(
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='right',
+            x=1
+        )
+    )
+
+    # ---------------------------------------------------------
+    # Exibição dos Gráficos
+    # ---------------------------------------------------------
+
+    col_grafico1, col_grafico2 = (
+        st.columns(2)
+    )
+
+    with col_grafico1:
+
+        st.plotly_chart(
+            fig1,
+            width='stretch'
+        )
+
+    with col_grafico2:
+
+        st.plotly_chart(
+            fig2,
+            width='stretch'
+        )
+
+    st.plotly_chart(
+        fig3,
+        width='stretch'
+    )
+
 #==============================================================
 # Apresentação das análises
 #--------------------------------------------------------------
@@ -1166,5 +1533,12 @@ analise_inde(dados)
 st.divider()
 
 analise_efetividade(dados)
+
+
+st.divider()
+
+analise_modelo(
+    artefato_modelo
+)
 
 st.divider()

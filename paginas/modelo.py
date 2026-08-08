@@ -1,5 +1,8 @@
 import streamlit as st
 import pandas as pd
+import joblib
+
+from pathlib import Path
 
 from utils.componentes import carregar_estilos
 
@@ -16,16 +19,53 @@ from utils.questionarios import (
 
 carregar_estilos()
 
-# -----------------------------------------------------
-# IDA
-# -----------------------------------------------------
+
+# =========================================================
+# Carregamento do Modelo
+# =========================================================
+
+@st.cache_resource
+def carregar_artefato_modelo():
+
+    caminho_modelo = (
+        Path(__file__).resolve().parents[1]
+        / 'modelo'
+        / 'modelo_risco.pkl'
+    )
+
+    return joblib.load(
+        caminho_modelo
+    )
+
+
+artefato_modelo = carregar_artefato_modelo()
+
+modelo_risco = artefato_modelo[
+    'modelo'
+]
+
+limiar_risco = (
+    artefato_modelo[
+        'avaliacao'
+    ][
+        'limiar_classificacao'
+    ]
+)
+
+
+# =========================================================
+# IDA — Indicador de Desempenho Acadêmico
+# =========================================================
+
 def calcular_ida():
 
     st.markdown(
         '#### IDA — Indicador de Desempenho Acadêmico'
     )
 
-    col_portugues, col_matematica, col_ingles = st.columns(3)
+    col_portugues, col_matematica, col_ingles = (
+        st.columns(3)
+    )
 
     with col_portugues:
 
@@ -36,9 +76,9 @@ def calcular_ida():
             value=None,
             step=0.5,
             format='%.3f',
-            placeholder='6.0'
+            placeholder='6.0',
+            key='portugues'
         )
-
 
     with col_matematica:
 
@@ -49,9 +89,9 @@ def calcular_ida():
             value=None,
             step=0.5,
             format='%.3f',
-            placeholder='6.0'
+            placeholder='6.0',
+            key='matematica'
         )
-
 
     with col_ingles:
 
@@ -62,50 +102,52 @@ def calcular_ida():
             value=None,
             step=0.5,
             format='%.3f',
-            placeholder='6.0'
+            placeholder='6.0',
+            key='ingles'
         )
 
     st.divider()
 
     if (
-        portugues is not None
-        and matematica is not None
+        portugues is None
+        or matematica is None
     ):
+        return None
 
-        if ingles is None:
+    if ingles is None:
 
-            calculo_ida = (
-                portugues
-                + matematica
-            ) / 2
+        calculo_ida = (
+            portugues
+            + matematica
+        ) / 2
 
-        else:
+    else:
 
-            calculo_ida = (
-                portugues
-                + matematica
-                + ingles
-            ) / 3
+        calculo_ida = (
+            portugues
+            + matematica
+            + ingles
+        ) / 3
 
-
-        return round(
-                calculo_ida,
-                3
-            )
-
-    return None
+    return round(
+        calculo_ida,
+        3
+    )
 
 
-# -----------------------------------------------------
-# IEG
-# -----------------------------------------------------
+# =========================================================
+# IEG — Indicador de Engajamento
+# =========================================================
+
 def calcular_ieg():
 
     st.markdown(
         '#### IEG — Indicador de Engajamento'
     )
 
-    col_solicitadas, col_entregues = st.columns(2)
+    col_solicitadas, col_entregues = (
+        st.columns(2)
+    )
 
     with col_solicitadas:
 
@@ -114,9 +156,9 @@ def calcular_ieg():
             min_value=10,
             max_value=25,
             value=10,
-            step=1
+            step=1,
+            key='atividades_solicitadas'
         )
-
 
     with col_entregues:
 
@@ -125,43 +167,47 @@ def calcular_ieg():
             min_value=0,
             max_value=25,
             value=5,
-            step=1
+            step=1,
+            key='atividades_entregues'
         )
 
     st.divider()
 
-    if atividades_entregues > atividades_solicitadas:
-        erros.append(
-            'A quantidade de atividades entregues não pode '
-            'ser maior que a quantidade de atividades solicitadas.'
-        )
-    else:
+    if (
+        atividades_entregues
+        > atividades_solicitadas
+    ):
+        return None
 
-        return round(
-            (
-                atividades_entregues
-                / atividades_solicitadas
-                * 10
-            ),
-            3
-        )
+    calculo_ieg = (
+        atividades_entregues
+        / atividades_solicitadas
+        * 10
+    )
+
+    return round(
+        calculo_ieg,
+        3
+    )
 
 
-    return None
-
-# ---------------------------------------------------------
+# =========================================================
 # IAA — Indicador de Autoavaliação
-# ---------------------------------------------------------
+# =========================================================
+
 def calcular_iaa(idade):
 
     st.markdown(
         '#### IAA — Indicador de Autoavaliação'
     )
+
     respostas_iaa = []
 
     if idade <= 11:
 
-        for codigo, pergunta in PERGUNTAS_IAA.items():
+        for codigo, pergunta in (
+            PERGUNTAS_IAA.items()
+        ):
 
             resposta = st.radio(
                 pergunta,
@@ -174,41 +220,55 @@ def calcular_iaa(idade):
             )
 
             if resposta is not None:
+
                 respostas_iaa.append(
-                    OPCOES_IAA_INICIAL[resposta]
+                    OPCOES_IAA_INICIAL[
+                        resposta
+                    ]
                 )
 
     else:
 
-        for codigo, pergunta in PERGUNTAS_IAA.items():
+        for codigo, pergunta in (
+            PERGUNTAS_IAA.items()
+        ):
 
             resposta = st.radio(
                 pergunta,
                 options=list(
-                    OPCOES_IAA_AVANCADO[codigo].keys()
+                    OPCOES_IAA_AVANCADO[
+                        codigo
+                    ].keys()
                 ),
                 index=None,
                 key=f'iaa_{codigo}'
             )
 
             if resposta is not None:
+
                 respostas_iaa.append(
-                    OPCOES_IAA_AVANCADO[codigo][resposta]
+                    OPCOES_IAA_AVANCADO[
+                        codigo
+                    ][
+                        resposta
+                    ]
                 )
 
     st.divider()
 
-    if len(respostas_iaa) == 6:
-        return round(
-            sum(respostas_iaa),
-            3
-        )
+    if len(respostas_iaa) != 6:
+        return None
 
-    return None
+    return round(
+        sum(respostas_iaa),
+        3
+    )
 
-# ---------------------------------------------------------
+
+# =========================================================
 # IPS — Indicador de Aspectos Psicossociais
-# ---------------------------------------------------------
+# =========================================================
+
 def calcular_ips():
 
     st.markdown(
@@ -217,34 +277,47 @@ def calcular_ips():
 
     respostas_ips = []
 
-    for codigo, configuracao in PERGUNTAS_IPS.items():
+    for codigo, configuracao in (
+        PERGUNTAS_IPS.items()
+    ):
 
         resposta = st.radio(
-            configuracao['pergunta'],
+            configuracao[
+                'pergunta'
+            ],
             options=list(
-                configuracao['opcoes'].keys()
+                configuracao[
+                    'opcoes'
+                ].keys()
             ),
             index=None,
             key=f'ips_{codigo}'
         )
 
         if resposta is not None:
+
             respostas_ips.append(
-                configuracao['opcoes'][resposta]
+                configuracao[
+                    'opcoes'
+                ][
+                    resposta
+                ]
             )
+
     st.divider()
 
-    if len(respostas_ips) == 4:
-        return round(
-            sum(respostas_ips),
-            3
-        )
+    if len(respostas_ips) != 4:
+        return None
 
-    return None
+    return round(
+        sum(respostas_ips),
+        3
+    )
 
-# ---------------------------------------------------------
+
+# =========================================================
 # IPP — Indicador de Aspectos Psicopedagógicos
-# ---------------------------------------------------------
+# =========================================================
 
 def calcular_ipp():
 
@@ -254,20 +327,31 @@ def calcular_ipp():
 
     respostas_ipp = []
 
-    for codigo, configuracao in PERGUNTAS_IPP.items():
+    for codigo, configuracao in (
+        PERGUNTAS_IPP.items()
+    ):
 
         resposta = st.radio(
-            configuracao['pergunta'],
+            configuracao[
+                'pergunta'
+            ],
             options=list(
-                configuracao['opcoes'].keys()
+                configuracao[
+                    'opcoes'
+                ].keys()
             ),
             index=None,
             key=f'ipp_{codigo}'
         )
 
         if resposta is not None:
+
             respostas_ipp.append(
-                configuracao['opcoes'][resposta]
+                configuracao[
+                    'opcoes'
+                ][
+                    resposta
+                ]
             )
 
     st.radio(
@@ -282,18 +366,18 @@ def calcular_ipp():
 
     st.divider()
 
-    if len(respostas_ipp) == 4:
-        return round(
-            sum(respostas_ipp),
-            3
-        )
+    if len(respostas_ipp) != 4:
+        return None
 
-    return None
+    return round(
+        sum(respostas_ipp),
+        3
+    )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # IPV — Indicador de Ponto de Virada
-# ---------------------------------------------------------
+# =========================================================
 
 def calcular_ipv():
 
@@ -303,31 +387,47 @@ def calcular_ipv():
 
     respostas_ipv = []
 
-    for codigo, configuracao in PERGUNTAS_IPV.items():
+    for codigo, configuracao in (
+        PERGUNTAS_IPV.items()
+    ):
 
         resposta = st.radio(
-            configuracao['pergunta'],
+            configuracao[
+                'pergunta'
+            ],
             options=list(
-                configuracao['opcoes'].keys()
+                configuracao[
+                    'opcoes'
+                ].keys()
             ),
             index=None,
             key=f'ipv_{codigo}'
         )
 
         if resposta is not None:
+
             respostas_ipv.append(
-                configuracao['opcoes'][resposta]
+                configuracao[
+                    'opcoes'
+                ][
+                    resposta
+                ]
             )
 
     st.divider()
 
-    if len(respostas_ipv) == 9:
-        return round(
-            sum(respostas_ipv),
-            3
-        )
+    if len(respostas_ipv) != 9:
+        return None
 
-    return None
+    return round(
+        sum(respostas_ipv),
+        3
+    )
+
+
+# =========================================================
+# INDE — Indicador de Desenvolvimento Educacional
+# =========================================================
 
 def calcular_inde(
     idade,
@@ -344,19 +444,21 @@ def calcular_inde(
     # -----------------------------------------------------
 
     if idade <= 9:
+
         ian = 8.5
 
     elif idade < 18:
+
         ian = 7.1
 
     else:
+
         ian = 5.5
 
 
     # -----------------------------------------------------
     # Agrupamento 1
     # Idade < 18
-    # Equivalente à composição das Fases 0 a 7
     # -----------------------------------------------------
 
     if idade < 18:
@@ -390,7 +492,6 @@ def calcular_inde(
     # -----------------------------------------------------
     # Agrupamento 2
     # Idade >= 18
-    # Equivalente à composição da Fase 8
     # -----------------------------------------------------
 
     else:
@@ -416,15 +517,15 @@ def calcular_inde(
             + (ips * 0.2)
         )
 
-
     return round(
         inde,
         3
     )
 
-# ---------------------------------------------------------
+
+# =========================================================
 # Reset do Questionário
-# ---------------------------------------------------------
+# =========================================================
 
 def resetar_questionario():
 
@@ -446,22 +547,34 @@ def resetar_questionario():
         'atividades_entregues'
     ]
 
-    for chave in list(st.session_state.keys()):
+    for chave in list(
+        st.session_state.keys()
+    ):
 
         if (
             chave in chaves
-            or chave.startswith(prefixos)
+            or chave.startswith(
+                prefixos
+            )
         ):
-            del st.session_state[chave]
+            del st.session_state[
+                chave
+            ]
 
 
-# ---------------------------------------------------------
+# =========================================================
 # Cabeçalho
-# ---------------------------------------------------------
+# =========================================================
 
-col_logo, col_titulo = st.columns([1, 6])
+col_logo, col_titulo = st.columns(
+    [
+        1,
+        6
+    ]
+)
 
 with col_logo:
+
     st.image(
         'https://raw.githubusercontent.com/andersonserrico/'
         'Datathon_TerraJourney_Grupo48/main/extrainfo/'
@@ -470,20 +583,24 @@ with col_logo:
     )
 
 with col_titulo:
+
     st.title(
         'Modelo de Riscos de Desenvolvimento Infantil'
     )
 
 
-# ---------------------------------------------------------
+# =========================================================
 # Identificação
-# ---------------------------------------------------------
+# =========================================================
 
-st.subheader('Identificação')
+st.subheader(
+    'Identificação'
+)
 
 st.write(
     'Identifique se o aluno já está cadastrado no programa.'
 )
+
 
 aluno_cadastrado = st.radio(
     'O aluno já tem um RA cadastrado?',
@@ -501,9 +618,9 @@ aluno_cadastrado = st.radio(
 questionario_identificacao = False
 
 
-# ---------------------------------------------------------
+# =========================================================
 # Aluno cadastrado
-# ---------------------------------------------------------
+# =========================================================
 
 if aluno_cadastrado == 'Sim':
 
@@ -516,26 +633,31 @@ if aluno_cadastrado == 'Sim':
         key='ra'
     )
 
-    # Validação temporária do RA
-    ra_validado = False
+    if ra is None:
 
-    if ra is not None:
+        st.info(
+            'Informe o RA para continuar.'
+        )
 
-        # Depois será substituído pela validação real
-        # consultando a base de alunos.
-        ra_validado = True
+    else:
 
-    if ra_validado:
-        questionario_identificacao = True
+        st.warning(
+            'A consulta automática dos dados pelo RA '
+            'ainda será implementada.'
+        )
+
+        questionario_identificacao = False
 
 
-# ---------------------------------------------------------
+# =========================================================
 # Aluno não cadastrado
-# ---------------------------------------------------------
+# =========================================================
 
 elif aluno_cadastrado == 'Não':
 
-    col_idade, col_genero, col_instituicao = st.columns(3)
+    col_idade, col_genero, col_instituicao = (
+        st.columns(3)
+    )
 
     with col_idade:
 
@@ -581,8 +703,13 @@ elif aluno_cadastrado == 'Não':
         and genero is not None
         and instituicao is not None
     ):
+
         questionario_identificacao = True
 
+
+# =========================================================
+# Nenhuma opção selecionada
+# =========================================================
 
 else:
 
@@ -594,9 +721,9 @@ else:
 st.divider()
 
 
-# ---------------------------------------------------------
+# =========================================================
 # Questionários
-# ---------------------------------------------------------
+# =========================================================
 
 if questionario_identificacao:
 
@@ -604,105 +731,130 @@ if questionario_identificacao:
         'Questionários de Avaliação'
     )
 
+
     calculo_ida = calcular_ida()
 
     calculo_ieg = calcular_ieg()
 
-    calculo_iaa = calcular_iaa(idade)
+    calculo_iaa = calcular_iaa(
+        idade
+    )
 
     calculo_ips = calcular_ips()
-    
+
     calculo_ipp = calcular_ipp()
 
     calculo_ipv = calcular_ipv()
 
-    # ---------------------------------------------------------
-    # Validação dos Dados
-    # ---------------------------------------------------------
 
-    if st.button('Validar'):
+    # =====================================================
+    # Botão de Validação
+    # =====================================================
+
+    if st.button(
+        'Validar'
+    ):
 
         erros = []
 
-        # -----------------------------------------------------
+
+        # -------------------------------------------------
         # IDA
-        # -----------------------------------------------------
+        # -------------------------------------------------
 
         if calculo_ida is None:
+
             erros.append(
-                'Informe as notas de Português e Matemática.'
+                'Informe as notas de Português '
+                'e Matemática.'
             )
 
-        # -----------------------------------------------------
+
+        # -------------------------------------------------
         # IEG
-        # -----------------------------------------------------
+        # -------------------------------------------------
 
         if calculo_ieg is None:
+
             erros.append(
-                'Não foi possível calcular o IEG.'
+                'A quantidade de atividades '
+                'entregues não pode ser maior '
+                'que a quantidade de atividades '
+                'solicitadas.'
             )
 
 
-        # -----------------------------------------------------
+        # -------------------------------------------------
         # IAA
-        # -----------------------------------------------------
+        # -------------------------------------------------
 
         if calculo_iaa is None:
+
             erros.append(
-                'Responda todas as questões do IAA.'
+                'Responda todas as questões '
+                'do IAA.'
             )
 
 
-        # -----------------------------------------------------
+        # -------------------------------------------------
         # IPS
-        # -----------------------------------------------------
+        # -------------------------------------------------
 
         if calculo_ips is None:
+
             erros.append(
-                'Responda todas as questões do IPS.'
+                'Responda todas as questões '
+                'do IPS.'
             )
 
 
-        # -----------------------------------------------------
+        # -------------------------------------------------
         # IPP
-        # -----------------------------------------------------
+        # -------------------------------------------------
 
         if calculo_ipp is None:
+
             erros.append(
-                'Responda todas as questões do IPP.'
+                'Responda todas as questões '
+                'do IPP.'
             )
 
 
-        # -----------------------------------------------------
+        # -------------------------------------------------
         # IPV
-        # -----------------------------------------------------
+        # -------------------------------------------------
 
         if calculo_ipv is None:
+
             erros.append(
-                'Responda todas as questões do IPV.'
+                'Responda todas as questões '
+                'do IPV.'
             )
 
 
-        # -----------------------------------------------------
+        # =================================================
         # Verificação
-        # -----------------------------------------------------
+        # =================================================
 
         if erros:
 
             st.error(
-                'Existem informações que precisam ser corrigidas '
-                'antes da validação.'
+                'Existem informações que precisam '
+                'ser corrigidas antes da validação.'
             )
 
             for erro in erros:
-                st.warning(erro)
+
+                st.warning(
+                    erro
+                )
 
             st.stop()
 
 
-        # -----------------------------------------------------
-        # Dataset para o Modelo
-        # -----------------------------------------------------
+        # =================================================
+        # Cálculo do INDE
+        # =================================================
 
         calculo_inde = calcular_inde(
             idade,
@@ -712,31 +864,196 @@ if questionario_identificacao:
             calculo_ips,
             calculo_ipp,
             calculo_ipv
-)
+        )
 
-        dados_aluno = {
-            'Idade': idade,
-            'Genero': genero,
-            'Instituicao_Ensino': instituicao,
-            'IDA': calculo_ida,
-            'IEG': calculo_ieg,
-            'IAA': calculo_iaa,
-            'IPS': calculo_ips,
-            'IPP': calculo_ipp,
-            'IPV': calculo_ipv,
-            'INDE': calculo_inde
+
+        if calculo_inde is None:
+
+            st.error(
+                'Não foi possível calcular o INDE.'
+            )
+
+            st.stop()
+
+
+        # =================================================
+        # Padronização para o Modelo
+        # =================================================
+
+        mapa_genero = {
+            'Masculino': 'M',
+            'Feminino': 'F'
         }
 
-        df_validacao = pd.DataFrame(
-            [dados_aluno]
+
+        mapa_instituicao = {
+            'Pública': 'Publica',
+            'Privado': 'Privada',
+            'Bolsista': 'Bolsista',
+            'Outros': 'Outros'
+        }
+
+
+        genero_modelo = (
+            mapa_genero[
+                genero
+            ]
         )
+
+
+        instituicao_modelo = (
+            mapa_instituicao[
+                instituicao
+            ]
+        )
+
+
+        # =================================================
+        # DataFrame Final
+        # =================================================
+
+        dados_aluno = {
+            'INDE': calculo_inde,
+            'IDA': calculo_ida,
+            'IEG': calculo_ieg,
+            'IPS': calculo_ips,
+            'IPP': calculo_ipp,
+            'IAA': calculo_iaa,
+            'IPV': calculo_ipv,
+            'Idade': idade,
+            'Genero': genero_modelo,
+            'Instituicao_Ensino': (
+                instituicao_modelo
+            )
+        }
+
+
+        df_validacao = pd.DataFrame(
+            [
+                dados_aluno
+            ]
+        )
+
+
+        # =================================================
+        # Mesmas Features e Ordem do Treinamento
+        # =================================================
+
+        features_modelo = (
+            artefato_modelo[
+                'features_modelo'
+            ]
+        )
+
+
+        df_modelo = (
+            df_validacao[
+                features_modelo
+            ]
+            .copy()
+        )
+
+
+        # =================================================
+        # Predição
+        # =================================================
+
+        probabilidade_risco = (
+            modelo_risco
+            .predict_proba(
+                df_modelo
+            )[0, 1]
+        )
+
+
+        risco_predito = (
+            probabilidade_risco
+            >= limiar_risco
+        )
+
+
+        # =================================================
+        # Dataset Validado
+        # =================================================
 
         st.success(
             'Dados validados com sucesso.'
         )
+
 
         st.dataframe(
             df_validacao,
             width='stretch',
             hide_index=True
         )
+
+
+        st.divider()
+
+
+        # =================================================
+        # Resultado do Modelo
+        # =================================================
+
+        st.subheader(
+            'Resultado da Avaliação de Risco'
+        )
+
+
+        col_probabilidade, col_classificacao = (
+            st.columns(2)
+        )
+
+
+        with col_probabilidade:
+
+            st.metric(
+                'Probabilidade de Risco',
+                (
+                    f'{probabilidade_risco * 100:.1f}%'
+                )
+            )
+
+
+        with col_classificacao:
+
+            if risco_predito:
+
+                st.metric(
+                    'Classificação',
+                    'Risco de Defasagem'
+                )
+
+            else:
+
+                st.metric(
+                    'Classificação',
+                    'Baixo Risco'
+                )
+
+
+        # =================================================
+        # Interpretação
+        # =================================================
+
+        if risco_predito:
+
+            st.warning(
+                f'O aluno apresentou uma probabilidade '
+                f'de {probabilidade_risco * 100:.1f}% '
+                f'de risco de defasagem, acima do '
+                f'limiar de '
+                f'{limiar_risco * 100:.0f}% definido '
+                f'para o modelo.'
+            )
+
+        else:
+
+            st.success(
+                f'O aluno apresentou uma probabilidade '
+                f'de {probabilidade_risco * 100:.1f}% '
+                f'de risco de defasagem, abaixo do '
+                f'limiar de '
+                f'{limiar_risco * 100:.0f}% definido '
+                f'para o modelo.'
+            )

@@ -22,11 +22,6 @@ pagina_analises = st.Page(
     icon='📊'
 )
 
-pagina_dashboard = st.Page(
-    'paginas/dashboard.py',
-    title='Dashboard',
-    icon='📈'
-)
 pagina_modelo = st.Page(
     'paginas/modelo.py',
     title='Modelo',
@@ -41,7 +36,6 @@ navegacao = st.navigation(
         ],
         'Projeto': [
             pagina_analises,
-            pagina_dashboard,
             pagina_modelo
         ]
     }
@@ -56,7 +50,6 @@ with st.sidebar:
             <strong>FIAP Datathon 2026</strong><br><br>
             TerraJourney - Grupo 48</strong><br>
             Anderson: RM368309<br>
-            Júlia: RM367721<br>
             Maike: RM367843<br>
             Rafaell: RM368753
         </div>

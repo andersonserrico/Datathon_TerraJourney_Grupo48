@@ -1,4 +1,5 @@
 from textwrap import dedent
+
 from utils.componentes import (
     carregar_estilos,
     exibir_hero,
@@ -58,7 +59,6 @@ with coluna_visao:
             análises eficientes e inovadoras que apoiem decisões 
             mais assertivas e ampliem as oportunidades de 
             desenvolvimento dos estudantes.
-                     
             '''
         )
 
@@ -77,8 +77,7 @@ exibir_descricao(
         ),
         (
             'Utilize o menu lateral para navegar pelas análises '
-            'exploratórias, pelo dashboard e pelos modelos '
-            'preditivos do projeto.'
+            'exploratórias e pelo modelo preditivo do projeto.'
         )
     ]
 )
@@ -87,7 +86,7 @@ exibir_descricao(
 st.divider()
 
 
-coluna_analises, coluna_dashboard, coluna_modelo = st.columns(3)
+coluna_analises, coluna_modelo = st.columns(2)
 
 
 with coluna_analises:
@@ -97,17 +96,6 @@ with coluna_analises:
         texto=(
             'Explore os indicadores acadêmicos, psicossociais e '
             'psicopedagógicos dos estudantes ao longo dos anos.'
-        )
-    )
-
-
-with coluna_dashboard:
-    exibir_card(
-        icone='📈',
-        titulo='Dashboards',
-        texto=(
-            'Visualizações interativas para facilitar a interpretação '
-            'dos dados e apoiar a tomada de decisões.'
         )
     )
 
@@ -129,7 +117,7 @@ st.divider()
 exibir_rodape(
     projeto='Grupo Terra',
     equipe=[
-        'Terra Wine • Terra Invest • Terra Healthy • Terra Fit  • Terra Journey'
+        'Terra Wine • Terra Invest • Terra Healthy • Terra Fit • Terra Journey'
     ],
     versao='1.0'
 )
