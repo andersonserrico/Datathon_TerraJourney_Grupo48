@@ -26,12 +26,11 @@ carregar_estilos()
 
 @st.cache_resource
 def carregar_artefato_modelo():
-
     caminho_modelo = (
         Path(__file__).resolve().parents[1]
         / 'modelo'
         / 'modelo_risco.pkl'
-    )
+        )
 
     return joblib.load(
         caminho_modelo
@@ -50,6 +49,23 @@ limiar_risco = (
     ][
         'limiar_classificacao'
     ]
+)
+
+
+# =========================================================
+# Leitura da Base de Dados
+# =========================================================
+
+github = (
+    'https://raw.githubusercontent.com/andersonserrico/'
+    'Datathon_TerraJourney_Grupo48/main/dados/'
+    'PEDE_Dados_Unificados.csv'
+)
+
+dados = pd.read_csv(
+    github,
+    sep=',',
+    encoding='utf-8-sig'
 )
 
 
@@ -431,6 +447,7 @@ def calcular_ipv():
 
 def calcular_inde(
     idade,
+    ian,
     ida,
     ieg,
     iaa,
@@ -440,23 +457,6 @@ def calcular_inde(
 ):
 
     # -----------------------------------------------------
-    # IAN simulado pela idade
-    # -----------------------------------------------------
-
-    if idade <= 9:
-
-        ian = 8.5
-
-    elif idade < 18:
-
-        ian = 7.1
-
-    else:
-
-        ian = 5.5
-
-
-    # -----------------------------------------------------
     # Agrupamento 1
     # Idade < 18
     # -----------------------------------------------------
@@ -464,6 +464,7 @@ def calcular_inde(
     if idade < 18:
 
         indicadores = [
+            ian,
             ida,
             ieg,
             iaa,
@@ -488,7 +489,6 @@ def calcular_inde(
             + (ipv * 0.2)
         )
 
-
     # -----------------------------------------------------
     # Agrupamento 2
     # Idade >= 18
@@ -497,6 +497,7 @@ def calcular_inde(
     else:
 
         indicadores = [
+            ian,
             ida,
             ieg,
             iaa,
@@ -537,9 +538,11 @@ def resetar_questionario():
     )
 
     chaves = [
+        'ra',
         'idade',
         'genero',
         'instituicao',
+        'ian',
         'portugues',
         'matematica',
         'ingles',
@@ -557,6 +560,7 @@ def resetar_questionario():
                 prefixos
             )
         ):
+
             del st.session_state[
                 chave
             ]
@@ -617,6 +621,10 @@ aluno_cadastrado = st.radio(
 
 questionario_identificacao = False
 
+idade = None
+genero_modelo = None
+instituicao_modelo = None
+
 
 # =========================================================
 # Aluno cadastrado
@@ -641,12 +649,133 @@ if aluno_cadastrado == 'Sim':
 
     else:
 
-        st.warning(
-            'A consulta automática dos dados pelo RA '
-            'ainda será implementada.'
+        ra_busca = (
+            f'RA-{int(ra)}'
         )
 
-        questionario_identificacao = False
+        registros_aluno = (
+            dados[
+                dados['RA'] == ra_busca
+            ]
+            .copy()
+        )
+
+        if registros_aluno.empty:
+
+            st.error(
+                f'O RA {ra_busca} não foi encontrado '
+                f'na base de dados.'
+            )
+
+            questionario_identificacao = False
+
+        else:
+
+            # -------------------------------------------------
+            # Histórico do aluno
+            # -------------------------------------------------
+
+            colunas_historico = [
+                'Ano_Referencia',
+                'Idade',
+                'Genero',
+                'IAN',
+                'IDA',
+                'IEG',
+                'IPS',
+                'IPP',
+                'IAA',
+                'IPV',
+                'INDE',
+                'Instituicao_Ensino'
+            ]
+
+            df_historico_aluno = (
+                registros_aluno[
+                    colunas_historico
+                ]
+                .copy()
+                .sort_values(
+                    'Ano_Referencia'
+                )
+            )
+
+            # -------------------------------------------------
+            # Visualização do histórico
+            # -------------------------------------------------
+
+            df_historico_exibicao = (
+                df_historico_aluno
+                .rename(
+                    columns={
+                        'Ano_Referencia': 'Ano',
+                        'Instituicao_Ensino': 'Instituição'
+                    }
+                )
+            )
+
+            st.success(
+                f'Aluno {ra_busca} localizado com sucesso.'
+            )
+
+            st.markdown(
+                '#### Histórico do Aluno'
+            )
+
+            st.dataframe(
+                df_historico_exibicao,
+                width='stretch',
+                hide_index=True
+            )
+
+            # -------------------------------------------------
+            # Dados cadastrais mais recentes
+            # -------------------------------------------------
+
+            registro_atual = (
+                df_historico_aluno
+                .sort_values(
+                    'Ano_Referencia'
+                )
+                .iloc[-1]
+            )
+
+            idade = registro_atual[
+                'Idade'
+            ]
+
+            genero_modelo = registro_atual[
+                'Genero'
+            ]
+
+            instituicao_modelo = registro_atual[
+                'Instituicao_Ensino'
+            ]
+
+            # -------------------------------------------------
+            # Validação dos dados necessários ao modelo
+            # -------------------------------------------------
+
+            if (
+                pd.isna(idade)
+                or pd.isna(genero_modelo)
+                or pd.isna(instituicao_modelo)
+            ):
+
+                st.error(
+                    'O registro mais recente do aluno não possui '
+                    'todos os dados necessários para a previsão.'
+                )
+
+                questionario_identificacao = False
+
+            else:
+
+                idade = int(
+                    idade
+                )
+
+                questionario_identificacao = True
 
 
 # =========================================================
@@ -704,6 +833,30 @@ elif aluno_cadastrado == 'Não':
         and instituicao is not None
     ):
 
+        mapa_genero = {
+            'Masculino': 'M',
+            'Feminino': 'F'
+        }
+
+        mapa_instituicao = {
+            'Pública': 'Publica',
+            'Privado': 'Privada',
+            'Bolsista': 'Bolsista',
+            'Outros': 'Outros'
+        }
+
+        genero_modelo = (
+            mapa_genero[
+                genero
+            ]
+        )
+
+        instituicao_modelo = (
+            mapa_instituicao[
+                instituicao
+            ]
+        )
+
         questionario_identificacao = True
 
 
@@ -731,6 +884,36 @@ if questionario_identificacao:
         'Questionários de Avaliação'
     )
 
+
+    # -----------------------------------------------------
+    # IAN
+    # -----------------------------------------------------
+
+    st.markdown(
+        '#### IAN — Indicador de Adequação de Nível'
+    )
+
+    ian = st.select_slider(
+        'Selecione o IAN:',
+        options=[
+            2.5,
+            5.0,
+            10.0
+        ],
+        value=5.0,
+        key='ian'
+    )
+
+    ian = float(
+        ian
+    )
+
+    st.divider()
+
+
+    # -----------------------------------------------------
+    # Demais indicadores
+    # -----------------------------------------------------
 
     calculo_ida = calcular_ida()
 
@@ -858,6 +1041,7 @@ if questionario_identificacao:
 
         calculo_inde = calcular_inde(
             idade,
+            ian,
             calculo_ida,
             calculo_ieg,
             calculo_iaa,
@@ -877,43 +1061,12 @@ if questionario_identificacao:
 
 
         # =================================================
-        # Padronização para o Modelo
-        # =================================================
-
-        mapa_genero = {
-            'Masculino': 'M',
-            'Feminino': 'F'
-        }
-
-
-        mapa_instituicao = {
-            'Pública': 'Publica',
-            'Privado': 'Privada',
-            'Bolsista': 'Bolsista',
-            'Outros': 'Outros'
-        }
-
-
-        genero_modelo = (
-            mapa_genero[
-                genero
-            ]
-        )
-
-
-        instituicao_modelo = (
-            mapa_instituicao[
-                instituicao
-            ]
-        )
-
-
-        # =================================================
         # DataFrame Final
         # =================================================
 
         dados_aluno = {
             'INDE': calculo_inde,
+            'IAN': ian,
             'IDA': calculo_ida,
             'IEG': calculo_ieg,
             'IPS': calculo_ips,
@@ -922,9 +1075,7 @@ if questionario_identificacao:
             'IPV': calculo_ipv,
             'Idade': idade,
             'Genero': genero_modelo,
-            'Instituicao_Ensino': (
-                instituicao_modelo
-            )
+            'Instituicao_Ensino': instituicao_modelo
         }
 
 
@@ -936,23 +1087,10 @@ if questionario_identificacao:
 
 
         # =================================================
-        # Mesmas Features e Ordem do Treinamento
+        # DataFrame para Predição
         # =================================================
 
-        features_modelo = (
-            artefato_modelo[
-                'features_modelo'
-            ]
-        )
-
-
-        df_modelo = (
-            df_validacao[
-                features_modelo
-            ]
-            .copy()
-        )
-
+        df_modelo = df_validacao.copy()
 
         # =================================================
         # Predição
