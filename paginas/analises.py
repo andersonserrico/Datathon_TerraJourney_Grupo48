@@ -1158,15 +1158,26 @@ def analise_modelo(artefato_modelo):
         '''
         <div class="analise-destaque">
             <span class="analise-titulo">Análise:</span>
-            O modelo preditivo de <strong>risco futuro de defasagem</strong>
-            utiliza os indicadores atuais do aluno para estimar a probabilidade
-            de apresentar defasagem no período seguinte.
-            As variáveis de maior importância no modelo são
-            <strong>IPP</strong>, <strong>Idade</strong> e
-            <strong>IAN</strong>.
-            O score probabilístico permite identificar e priorizar alunos
-            com maior risco, utilizando como referência o limiar de
-            <strong>50%</strong>.
+            O target <strong>RISCO_FUTURO</strong> foi construído
+            exclusivamente com o <strong>IAN realmente observado no ano
+            seguinte</strong>, sendo considerado risco quando
+            <strong>IAN_Futuro &lt; 10</strong>. O treino e o teste foram
+            separados por <strong>RA</strong>, evitando que o mesmo aluno
+            aparecesse nos dois conjuntos, e a validação utilizou
+            <strong>StratifiedGroupKFold</strong>. Entre os modelos testados,
+            o <strong>Gradient Boosting</strong> apresentou o melhor equilíbrio
+            entre <strong>ROC AUC, Recall e F1</strong>, mantendo desempenho
+            semelhante entre Cross-Validation e teste.
+            <br><br>
+            Entre as features, <strong>IPP, Idade, IAN e INDE</strong>
+            concentraram a maior parte da importância. A
+            <strong>Idade</strong> merece destaque por apresentar uma relação
+            não linear com o risco: a taxa foi mais elevada entre
+            <strong>7–9 anos</strong>, caiu entre <strong>10–13 anos</strong>
+            e voltou a aumentar entre <strong>14–17 anos</strong>, explicando
+            sua relevância no Gradient Boosting apesar da correlação linear
+            mais baixa. A faixa <strong>18+</strong> possui poucos registros
+            e não permite conclusões robustas.
         </div>
         ''',
         unsafe_allow_html=True
@@ -1373,7 +1384,7 @@ def analise_modelo(artefato_modelo):
 
     fig2.update_layout(
         xaxis_title=(
-            'Probabilidade Calculada pela I.A. (%)'
+            'Probabilidade Calculada pelo modelo (%)'
         ),
         yaxis_title='Quantidade de Alunos',
         showlegend=True
@@ -1462,6 +1473,7 @@ def analise_modelo(artefato_modelo):
         )
     )
 
+
     # ---------------------------------------------------------
     # Exibição dos Gráficos
     # ---------------------------------------------------------
@@ -1489,6 +1501,851 @@ def analise_modelo(artefato_modelo):
         width='stretch'
     )
 
+# ---------------------------------------------------------
+# Insight — Ponto de Virada
+# ---------------------------------------------------------
+def insight_ponto_virada(
+    dados,
+    limiar_ipv=8.35
+):
+
+    st.subheader(
+        'Insight — Ponto de Virada'
+    )
+
+    st.markdown(
+        '''
+        <div class="analise-destaque">
+            <span class="analise-titulo">Análise:</span>
+            A evolução do <strong>Ponto de Virada</strong> revela um cenário
+            de fortes oscilações ao longo dos anos, o que comprova que as
+            intervenções da ONG precisam ser adaptáveis a cada realidade.
+            De forma geral, o ano de <strong>2023</strong> registrou um pico
+            expressivo de sucesso no indicador, mas sofreu uma retração
+            significativa no ano seguinte, puxada principalmente pelas redes
+            <strong>Pública</strong> e <strong>Privada</strong>.
+            <br><br>
+            A <strong>Escola Pública</strong> consolida-se como o maior
+            gargalo estrutural, exigindo esforços de nivelamento de base a
+            longo prazo, enquanto a rede <strong>Privada</strong>, mesmo com
+            o recuo, mantém o melhor desempenho. O grande destaque fica para
+            o grupo de <strong>Bolsistas</strong>: contrariando a queda geral,
+            eles demonstraram forte resiliência, mantendo a estabilidade e
+            até uma leve evolução contínua na transição para o último ano.
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
+
+    # ---------------------------------------------------------
+    # Seleção dos dados
+    # ---------------------------------------------------------
+
+    df_analise = dados[
+        [
+            'Ano_Referencia',
+            'Instituicao_Ensino',
+            'IPV'
+        ]
+    ].copy()
+
+    # ---------------------------------------------------------
+    # Tratamento
+    # ---------------------------------------------------------
+
+    df_analise[
+        'Ano_Referencia'
+    ] = pd.to_numeric(
+        df_analise[
+            'Ano_Referencia'
+        ],
+        errors='coerce'
+    )
+
+    df_analise[
+        'IPV'
+    ] = pd.to_numeric(
+        df_analise[
+            'IPV'
+        ],
+        errors='coerce'
+    )
+
+    df_analise = df_analise.dropna(
+        subset=[
+            'Ano_Referencia',
+            'Instituicao_Ensino',
+            'IPV'
+        ]
+    )
+
+    # ---------------------------------------------------------
+    # Classificação do Ponto de Virada
+    # ---------------------------------------------------------
+
+    df_analise[
+        'Ponto_Virada'
+    ] = np.where(
+        df_analise[
+            'IPV'
+        ] >= limiar_ipv,
+        'Sim',
+        'Não'
+    )
+
+    # ---------------------------------------------------------
+    # Filtro por Instituição
+    # ---------------------------------------------------------
+
+    instituicoes = (
+        df_analise[
+            'Instituicao_Ensino'
+        ]
+        .dropna()
+        .unique()
+        .tolist()
+    )
+
+    instituicoes = sorted(
+        instituicoes
+    )
+
+    instituicao_selecionada = st.selectbox(
+        'Instituição:',
+        options=[
+            'Todas'
+        ] + instituicoes,
+        index=0,
+        key='filtro_ponto_virada'
+    )
+
+    # ---------------------------------------------------------
+    # Aplicação do Filtro
+    # ---------------------------------------------------------
+
+    if instituicao_selecionada != 'Todas':
+
+        df_filtro = (
+            df_analise[
+                df_analise[
+                    'Instituicao_Ensino'
+                ] == instituicao_selecionada
+            ]
+            .copy()
+        )
+
+    else:
+
+        df_filtro = (
+            df_analise
+            .copy()
+        )
+
+    # ---------------------------------------------------------
+    # Quantidade por Ano e Ponto de Virada
+    # ---------------------------------------------------------
+
+    df_grafico = (
+        df_filtro
+        .groupby(
+            [
+                'Ano_Referencia',
+                'Ponto_Virada'
+            ],
+            observed=True
+        )
+        .size()
+        .reset_index(
+            name='Quantidade'
+        )
+    )
+
+    # ---------------------------------------------------------
+    # Percentual por Ano
+    # ---------------------------------------------------------
+
+    df_grafico[
+        'Percentual'
+    ] = (
+        df_grafico[
+            'Quantidade'
+        ]
+        / df_grafico
+        .groupby(
+            'Ano_Referencia'
+        )[
+            'Quantidade'
+        ]
+        .transform(
+            'sum'
+        )
+        * 100
+    ).round(
+        1
+    )
+
+    # ---------------------------------------------------------
+    # Garantir presença de Sim e Não em todos os anos
+    # ---------------------------------------------------------
+
+    anos = (
+        df_grafico[
+            'Ano_Referencia'
+        ]
+        .unique()
+    )
+
+    combinacoes = pd.MultiIndex.from_product(
+        [
+            anos,
+            [
+                'Não',
+                'Sim'
+            ]
+        ],
+        names=[
+            'Ano_Referencia',
+            'Ponto_Virada'
+        ]
+    )
+
+    df_grafico = (
+        df_grafico
+        .set_index(
+            [
+                'Ano_Referencia',
+                'Ponto_Virada'
+            ]
+        )
+        .reindex(
+            combinacoes,
+            fill_value=0
+        )
+        .reset_index()
+    )
+
+    # ---------------------------------------------------------
+    # Texto dentro das barras
+    # ---------------------------------------------------------
+
+    df_grafico[
+        'Percentual_Texto'
+    ] = (
+        df_grafico
+        .apply(
+            lambda linha:
+                (
+                    f"{linha['Ponto_Virada'].lower()} "
+                    f"{linha['Percentual']:.1f}%"
+                )
+                if linha['Percentual'] >= 5
+                else '',
+            axis=1
+        )
+    )
+
+    # ---------------------------------------------------------
+    # Título dinâmico
+    # ---------------------------------------------------------
+
+    if instituicao_selecionada == 'Todas':
+
+        titulo = (
+            'Evolução Geral do Ponto de Virada '
+            '(2022 - 2024)'
+        )
+
+    else:
+
+        titulo = (
+            'Evolução do Ponto de Virada — '
+            f'{instituicao_selecionada}'
+        )
+
+    # ---------------------------------------------------------
+    # Gráfico Horizontal 100% Empilhado
+    # ---------------------------------------------------------
+
+    fig = criar_grafico(
+        tipo='bar_horizontal',
+        dados=df_grafico,
+        x='Percentual',
+        y='Ano_Referencia',
+        color='Ponto_Virada',
+        texto='Percentual_Texto',
+        titulo=titulo,
+        mostrar_legenda=True,
+        modo_barra='stack',
+        color_map={
+            'Não': COR_SECUNDARIA,
+            'Sim': COR_PRIMARIA
+        }
+    )
+
+    # ---------------------------------------------------------
+    # Ajustes Visuais
+    # ---------------------------------------------------------
+
+    fig.update_traces(
+        textposition='inside',
+        insidetextanchor='middle'
+    )
+
+    fig.update_layout(
+        xaxis=dict(
+            range=[
+                0,
+                100
+            ],
+            showticklabels=False,
+            title=None
+        ),
+        yaxis=dict(
+            title=None
+        ),
+        legend=dict(
+            title='Ponto de Virada',
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='right',
+            x=1
+        )
+    )
+
+    # ---------------------------------------------------------
+    # Exibição
+    # ---------------------------------------------------------
+
+    st.plotly_chart(
+        fig,
+        width='stretch'
+    )
+
+# ---------------------------------------------------------
+
+# Insight — Perfil de Risco Futuro
+
+# ---------------------------------------------------------
+
+def insight_perfil_risco(artefato_modelo):
+
+    st.subheader(
+
+        'Insight — Perfil de Risco Futuro'
+
+    )
+
+    st.markdown(
+
+        '''
+
+        <div class="analise-destaque">
+
+            <span class="analise-titulo">Análise:</span>
+
+            Quando se verifica pela ótica do
+
+            <strong>risco futuro de defasagem</strong> do aluno,
+
+            também percebe-se que os alunos da
+
+            <strong>escola pública</strong> apresentam maior vulnerabilidade.
+
+            Mesmo que parte desse efeito possa ser mediado pelo nível de
+
+            defasagem já existente no período atual, percebe-se que alunos
+
+            das escolas públicas merecem ser acompanhados com mais cuidado
+
+            pela ONG.
+
+            <br><br>
+
+            Adicionalmente, observa-se uma incidência ligeiramente maior de
+
+            risco futuro entre os alunos do <strong>sexo masculino</strong>.
+
+            Embora a variável <strong>Gênero</strong> tenha apresentado baixa
+
+            importância preditiva no modelo, o padrão identificado na análise
+
+            descritiva merece atenção. Esse resultado sugere a existência de
+
+            diferenças contextuais que não são plenamente capturadas pelos
+
+            demais indicadores avaliados, podendo servir como subsídio para
+
+            o planejamento de ações específicas de acompanhamento e suporte
+
+            aos estudantes atendidos pela ONG.
+
+        </div>
+
+        ''',
+
+        unsafe_allow_html=True
+
+    )
+
+    # =========================================================
+
+    # Análise por Gênero
+
+    # =========================================================
+
+    df_genero = (
+
+        artefato_modelo[
+
+            'analise_genero'
+
+        ]
+
+        .copy()
+
+        .reset_index()
+
+    )
+
+    # Renomeando a primeira coluna
+
+    df_genero = df_genero.rename(
+
+        columns={
+
+            df_genero.columns[0]: 'Genero'
+
+        }
+
+    )
+
+    # Padronização do Gênero
+
+    df_genero['Genero'] = (
+
+        df_genero['Genero']
+
+        .replace(
+
+            {
+
+                'M': 'Masculino',
+
+                'F': 'Feminino',
+
+                0: 'Masculino',
+
+                1: 'Feminino'
+
+            }
+
+        )
+
+    )
+
+    # Identificação das colunas de risco
+
+    coluna_sem_risco = (
+
+        0
+
+        if 0 in df_genero.columns
+
+        else '0'
+
+    )
+
+    coluna_com_risco = (
+
+        1
+
+        if 1 in df_genero.columns
+
+        else '1'
+
+    )
+
+    # Renomeando as categorias
+
+    df_genero = (
+
+        df_genero[
+
+            [
+
+                'Genero',
+
+                coluna_sem_risco,
+
+                coluna_com_risco
+
+            ]
+
+        ]
+
+        .rename(
+
+            columns={
+
+                coluna_sem_risco: 'Sem Risco',
+
+                coluna_com_risco: 'Com Risco'
+
+            }
+
+        )
+
+    )
+
+    # Transformação para formato longo
+
+    df_genero = df_genero.melt(
+
+        id_vars='Genero',
+
+        value_vars=[
+
+            'Sem Risco',
+
+            'Com Risco'
+
+        ],
+
+        var_name='Risco',
+
+        value_name='Proporcao'
+
+    )
+
+    # Conversão para percentual
+
+    df_genero['Percentual'] = (
+
+        df_genero['Proporcao']
+
+        * 100
+
+    )
+
+    # Texto das barras
+
+    df_genero['Percentual_Texto'] = (
+
+        df_genero['Percentual']
+
+        .map(
+
+            lambda valor:
+
+                f'{valor:.1f}%'
+
+        )
+
+    )
+
+# ---------------------------------------------------------
+# Insight — Perfil de Risco Futuro
+# ---------------------------------------------------------
+def insight_perfil_risco(artefato_modelo):
+
+    st.subheader(
+        'Insight — Perfil de Risco Futuro'
+    )
+
+    st.markdown(
+        '''
+        <div class="analise-destaque">
+            <span class="analise-titulo">Análise:</span>
+            Quando se verifica pela ótica do
+            <strong>risco futuro de defasagem</strong> do aluno,
+            também percebe-se que os alunos da
+            <strong>escola pública</strong> apresentam maior vulnerabilidade.
+            Mesmo que parte desse efeito possa ser mediado pelo nível de
+            defasagem já existente no período atual, percebe-se que alunos
+            das escolas públicas merecem ser acompanhados com mais cuidado
+            pela ONG.
+            <br><br>
+            Adicionalmente, observa-se uma incidência ligeiramente maior de
+            risco futuro entre os alunos do <strong>sexo masculino</strong>.
+            Embora a variável <strong>Gênero</strong> tenha apresentado baixa
+            importância preditiva no modelo, o padrão identificado na análise
+            descritiva merece atenção. Esse resultado sugere a existência de
+            diferenças contextuais que não são plenamente capturadas pelos
+            demais indicadores avaliados, podendo servir como subsídio para
+            o planejamento de ações específicas de acompanhamento e suporte
+            aos estudantes atendidos pela ONG.
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
+
+
+    # =========================================================
+    # Análise por Gênero
+    # =========================================================
+
+    df_genero = (
+        artefato_modelo[
+            'analise_genero'
+        ]
+        .copy()
+        .reset_index()
+    )
+
+
+    # Renomeando a primeira coluna
+    df_genero = df_genero.rename(
+        columns={
+            df_genero.columns[0]: 'Genero'
+        }
+    )
+
+
+    # Padronização do Gênero
+    df_genero['Genero'] = (
+        df_genero['Genero']
+        .replace(
+            {
+                'M': 'Masculino',
+                'F': 'Feminino',
+                0: 'Masculino',
+                1: 'Feminino'
+            }
+        )
+    )
+
+
+    # Identificação das colunas de risco
+    coluna_sem_risco = (
+        0
+        if 0 in df_genero.columns
+        else '0'
+    )
+
+    coluna_com_risco = (
+        1
+        if 1 in df_genero.columns
+        else '1'
+    )
+
+
+    # Renomeando as categorias
+    df_genero = (
+        df_genero[
+            [
+                'Genero',
+                coluna_sem_risco,
+                coluna_com_risco
+            ]
+        ]
+        .rename(
+            columns={
+                coluna_sem_risco: 'Sem Risco',
+                coluna_com_risco: 'Com Risco'
+            }
+        )
+    )
+
+
+    # Transformação para formato longo
+    df_genero = df_genero.melt(
+        id_vars='Genero',
+        value_vars=[
+            'Sem Risco',
+            'Com Risco'
+        ],
+        var_name='Risco',
+        value_name='Proporcao'
+    )
+
+
+    # Conversão para percentual
+    df_genero['Percentual'] = (
+        df_genero['Proporcao']
+        * 100
+    )
+
+
+    # Texto das barras
+    df_genero['Percentual_Texto'] = (
+        df_genero['Percentual']
+        .map(
+            lambda valor:
+                f'{valor:.1f}%'
+        )
+    )
+
+
+    # =========================================================
+    # Gráfico 1 — Gênero x Risco Futuro
+    # =========================================================
+
+    fig1 = criar_grafico(
+        tipo='bar',
+        dados=df_genero,
+        x='Genero',
+        y='Percentual',
+        color='Risco',
+        texto='Percentual_Texto',
+        titulo='Distribuição do Risco Futuro por Gênero',
+        mostrar_legenda=True,
+        modo_barra='stack',
+        color_map={
+            'Sem Risco': COR_SECUNDARIA,
+            'Com Risco': COR_PRIMARIA
+        }
+    )
+
+
+    fig1.update_traces(
+        textposition='inside'
+    )
+
+
+    fig1.update_layout(
+        xaxis_title=None,
+        yaxis_title='Proporção de Alunos (%)',
+        yaxis_range=[
+            0,
+            100
+        ]
+    )
+
+
+    # =========================================================
+    # Análise por Instituição
+    # =========================================================
+
+    df_instituicao = (
+        artefato_modelo[
+            'analise_instituicao'
+        ]
+        .copy()
+        .reset_index()
+    )
+
+
+    # Renomeando a primeira coluna
+    df_instituicao = (
+        df_instituicao
+        .rename(
+            columns={
+                df_instituicao.columns[0]:
+                    'Instituicao_Ensino'
+            }
+        )
+    )
+
+
+    # Identificação da coluna de risco
+    coluna_com_risco = (
+        1
+        if 1 in df_instituicao.columns
+        else '1'
+    )
+
+
+    # Mantendo apenas os alunos com risco
+    df_instituicao = (
+        df_instituicao[
+            [
+                'Instituicao_Ensino',
+                coluna_com_risco
+            ]
+        ]
+        .rename(
+            columns={
+                coluna_com_risco:
+                    'Proporcao'
+            }
+        )
+    )
+
+
+    # Conversão para percentual
+    df_instituicao['Percentual'] = (
+        df_instituicao['Proporcao']
+        * 100
+    )
+
+
+    # Texto das barras
+    df_instituicao['Percentual_Texto'] = (
+        df_instituicao['Percentual']
+        .map(
+            lambda valor:
+                f'{valor:.1f}%'
+        )
+    )
+
+
+    # Ordenação
+    df_instituicao = (
+        df_instituicao
+        .sort_values(
+            'Percentual',
+            ascending=False
+        )
+    )
+
+
+    # =========================================================
+    # Gráfico 2 — Instituição x Risco Futuro
+    # =========================================================
+
+    fig2 = criar_grafico(
+        tipo='bar',
+        dados=df_instituicao,
+        x='Instituicao_Ensino',
+        y='Percentual',
+        texto='Percentual_Texto',
+        titulo='Probabilidade de Risco Futuro por Instituição',
+        paleta=[
+            COR_PRIMARIA
+        ]
+    )
+
+
+    fig2.update_traces(
+        textposition='outside'
+    )
+
+
+    fig2.update_layout(
+        xaxis_title=None,
+        yaxis_title='Proporção de Alunos em Risco (%)',
+        yaxis_range=[
+            0,
+            100
+        ]
+    )
+
+
+    # =========================================================
+    # Exibição dos Gráficos
+    # =========================================================
+
+    col_grafico1, col_grafico2 = (
+        st.columns(2)
+    )
+
+
+    with col_grafico1:
+
+        st.plotly_chart(
+            fig1,
+            width='stretch'
+        )
+
+
+    with col_grafico2:
+
+        st.plotly_chart(
+            fig2,
+            width='stretch'
+        )
+
 #==============================================================
 # Apresentação das análises
 #--------------------------------------------------------------
@@ -1498,47 +2355,112 @@ def analise_modelo(artefato_modelo):
 #
 #==============================================================
 
-st.divider()
 
-analise_ian(dados)
-
-st.divider()
-
-analise_ida(dados)
+#==============================================================
+# Seleção e apresentação das análises
+#==============================================================
 
 st.divider()
 
-analise_ieg(dados)
-
-st.divider()
-
-analise_iaa(dados)
-
-st.divider()
-
-analise_ips(dados)
-
-st.divider()
-
-analise_ipp(dados)
-
-st.divider()
-
-analise_ipv(dados)
-
-st.divider()
-
-analise_inde(dados)
-
-st.divider()
-
-analise_efetividade(dados)
-
-
-st.divider()
-
-analise_modelo(
-    artefato_modelo
+st.subheader(
+    'Selecione a análise desejada'
 )
+
+opcao_analise = st.selectbox(
+    'Análise:',
+    options=[
+        'Defasagem Escolar — IAN',
+        'Desempenho Escolar — IDA',
+        'Engajamento — IEG',
+        'Autoavaliação — IAA',
+        'Aspectos Psicossociais — IPS',
+        'Aspectos Psicopedagógicos — IPP',
+        'Ponto de Virada — IPV',
+        'Nota Global — INDE',
+        'Efetividade do Programa',
+        'Risco de Defasagem — Modelo Preditivo',
+        'Insight — Ponto de Virada',
+        'Insight — Perfil de Risco Futuro'
+    ],
+    index=None,
+    placeholder='Selecione uma análise'
+)
+
+if opcao_analise == 'Defasagem Escolar — IAN':
+
+    analise_ian(
+        dados
+    )
+
+
+elif opcao_analise == 'Desempenho Escolar — IDA':
+
+    analise_ida(
+        dados
+    )
+
+
+elif opcao_analise == 'Engajamento — IEG':
+
+    analise_ieg(
+        dados
+    )
+
+
+elif opcao_analise == 'Autoavaliação — IAA':
+
+    analise_iaa(
+        dados
+    )
+
+
+elif opcao_analise == 'Aspectos Psicossociais — IPS':
+
+    analise_ips(
+        dados
+    )
+
+
+elif opcao_analise == 'Aspectos Psicopedagógicos — IPP':
+
+    analise_ipp(
+        dados
+    )
+
+
+elif opcao_analise == 'Ponto de Virada — IPV':
+
+    analise_ipv(
+        dados
+    )
+
+
+elif opcao_analise == 'Nota Global — INDE':
+
+    analise_inde(
+        dados
+    )
+
+
+elif opcao_analise == 'Efetividade do Programa':
+    analise_efetividade(
+        dados
+    )
+
+
+elif opcao_analise == 'Risco de Defasagem — Modelo Preditivo':
+    analise_modelo(
+        artefato_modelo
+    )
+
+elif opcao_analise == 'Insight — Ponto de Virada':    
+    insight_ponto_virada(
+        dados
+    )
+
+elif opcao_analise == 'Insight — Perfil de Risco Futuro':
+    insight_perfil_risco(
+        artefato_modelo
+    )
 
 st.divider()

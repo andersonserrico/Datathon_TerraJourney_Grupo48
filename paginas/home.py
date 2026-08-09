@@ -71,8 +71,8 @@ exibir_descricao(
     paragrafos=[
         (
             'Esta plataforma apresenta análises dos indicadores '
-            'educacionais da Associação Passos Mágicos e modelos '
-            'desenvolvidos para apoiar a compreensão do desempenho '
+            'educacionais da Associação Passos Mágicos além de um modelo '
+            'desenvolvido para apoiar a compreensão do desempenho '
             'e da trajetória dos alunos.'
         ),
         (
@@ -105,8 +105,9 @@ with coluna_modelo:
         icone='🤖',
         titulo='Modelo Preditivo',
         texto=(
-            'Aplicação de técnicas de Machine Learning para identificar '
-            'padrões e apoiar análises preditivas.'
+            'A partir do cadstro de um aluno, o modelo irá '
+            'predizer o risco deste aluno entrar em defasagem '
+            'acadêmica '
         )
     )
 
