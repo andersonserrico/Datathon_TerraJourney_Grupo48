@@ -1,245 +1,235 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/andersonserrico/Datathon_TerraJourney_Grupo48/main/extrainfo/TerraJourney_logo_branco.svg" alt="TerraJourney" width="350">
-</div>
+# TerraJourney --- FIAP Datathon 2026
 
-🌎 TerraJourney — Plataforma de Inteligência Educacional
+Plataforma de Inteligência Educacional desenvolvida pelo **Grupo 48**
+para o Datathon da FIAP, utilizando dados da **Associação Passos
+Mágicos**.
 
-FIAP Datathon 2026 • Grupo 48
+O projeto transforma dados educacionais em análises, insights e um
+modelo preditivo voltado à identificação de estudantes com **risco
+futuro de defasagem**, apoiando a tomada de decisão e a priorização de
+ações de acompanhamento.
 
-O TerraJourney é uma plataforma de inteligência educacional desenvolvida para o Datathon FIAP 2026, utilizando dados da Associação Passos Mágicos.
+## Links
 
-O projeto transforma dados educacionais em informações estratégicas por meio de tratamento e análise de dados, visualizações interativas e técnicas de Machine Learning, permitindo compreender a trajetória dos estudantes e identificar fatores relacionados ao seu desenvolvimento acadêmico.
+-   **Streamlit App:**
+    https://datathonterrajourneygrupo48-ezv3pfwsutzlalyxhqhfkv.streamlit.app/analises
+-   **GitHub:**
+    https://github.com/andersonserrico/Datathon_TerraJourney_Grupo48/tree/main
+-   **Apresentação:** A incluir
 
-⸻
+## Sobre o projeto
 
-🎯 Missão
+O TerraJourney foi desenvolvido para apoiar a análise da trajetória
+educacional dos estudantes atendidos pela Associação Passos Mágicos.
 
-Impulsionar a Jornada do Conhecimento por meio da análise de dados educacionais, transformando informações em conhecimento estratégico para identificar oportunidades de desenvolvimento e fortalecer iniciativas que ampliem o impacto da educação na vida dos estudantes.
+A solução reúne duas frentes principais:
 
-⸻
+1.  **Análises dos Indicadores Educacionais** --- exploração dos
+    indicadores acadêmicos, psicossociais e psicopedagógicos, além de
+    insights complementares sobre a evolução dos alunos.
+2.  **Modelo Preditivo** --- estimativa da probabilidade de risco futuro
+    de defasagem a partir das informações disponíveis no período atual.
 
-🔭 Visão
+### Missão
 
-Conduzir a jornada do dado ao conhecimento, promovendo análises eficientes e inovadoras que apoiem decisões mais assertivas e ampliem as oportunidades de desenvolvimento dos estudantes.
+Impulsionar a Jornada do Conhecimento por meio da análise de dados
+educacionais, transformando informações em conhecimento estratégico para
+identificar oportunidades de desenvolvimento e fortalecer iniciativas
+que ampliem o impacto da educação na vida dos estudantes.
 
-⸻
+### Visão
 
-📊 Indicadores Educacionais
+Conduzir a jornada do dado ao conhecimento, promovendo análises
+eficientes e inovadoras que apoiem decisões mais assertivas e ampliem as
+oportunidades de desenvolvimento dos estudantes.
 
-As análises do TerraJourney exploram os principais indicadores disponibilizados pela Associação Passos Mágicos:
+## Estrutura da aplicação
 
-Indicador	Descrição
-IAN	Indicador de Adequação de Nível
-IDA	Indicador de Desempenho Acadêmico
-IEG	Indicador de Engajamento
-IAA	Indicador de Autoavaliação
-IPS	Indicador Psicossocial
-IPP	Indicador Psicopedagógico
-IPV	Indicador de Ponto de Virada
-INDE	Índice do Desenvolvimento Educacional
+A aplicação Streamlit está organizada atualmente em três páginas
+principais:
 
-⸻
+### Home
 
-🔎 Análises Desenvolvidas
+Página inicial do TerraJourney, apresentando a proposta da plataforma,
+missão, visão e acesso às principais áreas do projeto.
 
-A plataforma apresenta análises voltadas às principais questões educacionais propostas pelo Datathon.
+### Análises
 
-1. Defasagem Escolar — IAN
+Página dedicada à exploração dos indicadores educacionais e aos
+principais insights obtidos a partir dos dados.
 
-Análise da evolução da adequação dos estudantes às suas respectivas fases escolares, classificando-os em:
+Entre as análises disponibilizadas estão:
 
-* Adequado (Em Fase);
-* Defasagem Moderada;
-* Defasagem Severa.
+-   **Defasagem Escolar --- IAN**
+-   **Desempenho Escolar --- IDA**
+-   **Engajamento --- IEG**
+-   **Autoavaliação --- IAA**
+-   **Aspectos Psicossociais --- IPS**
+-   **Aspectos Psicopedagógicos --- IPP**
+-   **Ponto de Virada --- IPV**
+-   **Nota Global --- INDE**
+-   **Efetividade do Programa --- Evolução do INDE**
+-   **Modelo Preditivo --- Risco de Defasagem**
+-   **Insights --- Disciplinas Impactadas**
+-   **Insights --- Ponto de Virada**
+-   **Insight --- Perfil de Risco Futuro**
 
-2. Desempenho Acadêmico — IDA
+As análises são selecionadas por meio de um menu, permitindo que o
+usuário visualize somente o conteúdo desejado.
 
-Avaliação da evolução do desempenho acadêmico dos estudantes ao longo das fases e dos anos.
+### Modelo
 
-3. Engajamento — IEG
+Página destinada à aplicação do modelo de risco.
 
-Análise da relação entre o engajamento dos estudantes e:
+Para alunos não cadastrados, a aplicação permite preencher informações
+do estudante e responder aos questionários necessários para o cálculo
+dos indicadores.
 
-* Desempenho Acadêmico (IDA);
-* Ponto de Virada (IPV).
+Para alunos cadastrados, o RA é utilizado para localizar o histórico
+disponível na base de dados antes da continuidade da avaliação.
 
-4. Autoavaliação — IAA
+## Indicadores educacionais
 
-Avaliação da coerência entre a percepção dos estudantes sobre si mesmos e seus resultados acadêmicos e de engajamento.
+O projeto utiliza os principais indicadores presentes na base da
+Associação Passos Mágicos:
 
-5. Aspectos Psicossociais — IPS
+  Indicador   Descrição
+  ----------- ------------------------------------------
+  **IAN**     Indicador de Adequação de Nível
+  **IDA**     Indicador de Desempenho Acadêmico
+  **IEG**     Indicador de Engajamento
+  **IAA**     Indicador de Autoavaliação
+  **IPS**     Indicador de Aspectos Psicossociais
+  **IPP**     Indicador de Aspectos Psicopedagógicos
+  **IPV**     Indicador de Ponto de Virada
+  **INDE**    Indicador de Desenvolvimento Educacional
 
-Análise longitudinal para identificar se resultados psicossociais podem anteceder quedas futuras no desempenho ou no engajamento.
+## Modelo preditivo de risco futuro
 
-6. Aspectos Psicopedagógicos — IPP
+O objetivo do modelo é estimar o **risco futuro de defasagem** do
+estudante.
 
-Comparação das avaliações psicopedagógicas com os níveis de defasagem identificados pelo IAN.
+### Construção do target
 
-7. Ponto de Virada — IPV
+O target `RISCO_FUTURO` foi construído exclusivamente a partir do **IAN
+realmente observado no ano seguinte**.
 
-Análise dos indicadores que apresentam maior associação com o Ponto de Virada dos estudantes.
+A regra utilizada foi:
 
-8. Nota Global — INDE
+``` python
+RISCO_FUTURO = 1 if IAN_FUTURO < 10 else 0
+```
 
-Avaliação da relação dos diferentes indicadores educacionais com o INDE.
+Dessa forma:
+-   `0` representa estudante sem risco futuro segundo a regra definida;
+-   `1` representa estudante com risco futuro de defasagem.
 
-9. Efetividade do Programa
+### Separação dos dados
 
-Análise da progressão da Nota Global (INDE) ao longo das fases do programa, permitindo observar a evolução dos estudantes durante sua jornada educacional.
+A divisão entre treino e teste foi realizada por **RA**, evitando que
+registros do mesmo estudante aparecessem simultaneamente nos dois
+conjuntos.
 
-⸻
+A validação cruzada utilizou **StratifiedGroupKFold**, preservando tanto
+a separação por estudante quanto a distribuição da variável alvo.
 
-📈 Dashboard
+### Seleção do modelo
 
-O TerraJourney possui um dashboard interativo desenvolvido com Streamlit e Plotly.
+Diferentes algoritmos foram avaliados durante o desenvolvimento.
 
-O dashboard permite explorar visualmente informações da base educacional por meio de gráficos interativos e indicadores consolidados.
+O **Gradient Boosting** apresentou o melhor equilíbrio entre as métricas
+avaliadas, especialmente:
 
-As visualizações seguem uma identidade visual própria do TerraJourney e foram estruturadas através de uma pipeline reutilizável de gráficos.
+-   ROC AUC;
+-   Recall;
+-   F1-score.
 
-⸻
+O desempenho entre Cross-Validation e conjunto de teste também se
+manteve semelhante, contribuindo para a escolha do modelo final.
 
-🤖 Modelo Preditivo
+### Features
 
-A plataforma também prevê uma área dedicada à aplicação de técnicas de Machine Learning.
+O modelo utiliza informações educacionais e de perfil disponíveis no
+período atual.
 
-O objetivo é utilizar os indicadores educacionais para desenvolver modelos capazes de apoiar a identificação de padrões e oportunidades de intervenção na trajetória dos estudantes.
+Entre as variáveis com maior importância no modelo estão:
 
-⸻
+-   **IPP**
+-   **Idade**
+-   **IAN**
+-   **INDE**
 
-🛠️ Tecnologias Utilizadas
+A idade apresentou uma relação não linear com o risco: a taxa foi mais
+elevada entre 7--9 anos, caiu entre 10--13 anos e voltou a aumentar
+entre 14--17 anos. A faixa de 18 anos ou mais possui poucos registros e,
+portanto, não permite conclusões robustas.
 
-O projeto utiliza principalmente:
+O artefato salvo também contém informações utilizadas pelas análises da
+aplicação, incluindo importância das features, probabilidades do
+conjunto de teste e análises de risco por idade, gênero e instituição de
+ensino.
 
-* Python
-* Streamlit
-* Pandas
-* NumPy
-* Plotly
-* Scikit-learn
-* Statsmodels
-* OpenPyXL
 
-⸻
+## Estrutura do projeto
 
-📂 Estrutura do Projeto
-
+``` text
 Datathon_TerraJourney_Grupo48/
-
-├── app.py
-├── README.md
-├── requirements.txt
-├── .gitignore
 │
-├── .streamlit/
-│   └── config.toml
+├── app.py
+│
+├── requirements.txt
 │
 ├── assets/
 │   └── style.css
 │
 ├── dados/
-│   ├── BASE_DATATHON_2024.xlsx
+│   └── Base_DATATHON_2024.xlsx
 │   └── PEDE_Dados_Unificados.csv
 │
-├── extrainfo/
-│   └── TerraJourney_logo_branco.svg
+├── modelo/
+│   └── modelo_risco.pkl
 │
 ├── notebooks/
+│   └── Modelo_TerraJourney.ipynb
 │   └── Tratamento_base.ipynb
 │
 ├── paginas/
 │   ├── home.py
 │   ├── analises.py
-│   ├── dashboard.py
 │   └── modelo.py
 │
-└── utils/
-├── init.py
-├── componentes.py
-├── graficos.py
-└── tema.py
+├── utils/
+│   ├── componentes.py
+│   ├── graficos.py
+│   ├── questionarios.py
+│   └── tema.py
+│
+└── .streamlit/
+    └── config.toml
+```
 
-⸻
+## Requirements.txt
+-   Streamlit
+-   Pandas
+-   Plotly
+-   NumPy
+-   openpyxl
+-   Scikit-learn
+-   statsmodels
+-   Joblib
 
-🖥️ Estrutura da Aplicação
+## Equipe --- Grupo 48
 
-A aplicação está organizada em quatro áreas principais:
+-   **Anderson Serrico de Oliveira** --- RM368309
+-   **Maike** --- RM367843
+-   **Rafaell** --- RM368753
 
-🏠 Home
+## FIAP Datathon 2026
 
-Apresentação do TerraJourney, contexto do projeto, missão, visão e principais funcionalidades da plataforma.
+Projeto desenvolvido como parte do **Datathon da Pós-Graduação FIAP ---
+Data Analytics**, utilizando dados educacionais da Associação Passos
+Mágicos.
 
-📊 Análises
+------------------------------------------------------------------------
 
-Exploração dos indicadores educacionais e respostas às questões analíticas propostas pelo Datathon.
-
-📈 Dashboard
-
-Visualizações interativas que facilitam a exploração e interpretação dos dados educacionais.
-
-🤖 Modelo Preditivo
-
-Área destinada à aplicação e apresentação das técnicas de Machine Learning utilizadas no projeto.
-
-⸻
-
-▶️ Como executar o projeto
-
-1. Clone o repositório
-
-git clone https://github.com/andersonserrico/Datathon_TerraJourney_Grupo48.git
-
-2. Entre no diretório
-
-cd Datathon_TerraJourney_Grupo48
-
-3. Crie um ambiente virtual
-
-macOS / Linux
-
-python3 -m venv .venv
-source .venv/bin/activate
-
-Windows
-
-python -m venv .venv
-.venv\Scripts\activate
-
-4. Instale as dependências
-
-pip install -r requirements.txt
-
-5. Execute o Streamlit
-
-streamlit run app.py
-
-⸻
-
-📦 Dependências
-
-As principais dependências estão definidas no arquivo requirements.txt:
-
-* streamlit
-* pandas
-* plotly
-* numpy
-* openpyxl
-* scikit-learn
-* statsmodels
-
-⸻
-
-👥 Equipe
-
-FIAP Datathon 2026 — Grupo 48
-
-* Anderson — RM368309
-* Júlia — RM367721
-* Maike — RM367843
-* Rafaell — RM368753
-
-⸻
-
-🌎 TerraJourney
-
-Da jornada do dado ao conhecimento.
+**TerraJourney --- Do dado ao conhecimento.**
