@@ -4,5 +4,6 @@ plotly
 numpy
 openpyxl
 scikit-learn
+scipy
 statsmodels
 joblib

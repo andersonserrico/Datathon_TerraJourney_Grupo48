@@ -1,3 +1,8 @@
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andersonserrico/Datathon_TerraJourney_Grupo48/main/extrainfo/TerraJourney_logo_branco.svg" alt="Logo TerraJourney" width="250">
+</div>
+
+
 # TerraJourney --- FIAP Datathon 2026
 
 Plataforma de Inteligência Educacional desenvolvida pelo **Grupo 48**
@@ -11,11 +16,12 @@ ações de acompanhamento.
 
 ## Links
 
--   **Streamlit App:**
-    https://datathonterrajourneygrupo48-ezv3pfwsutzlalyxhqhfkv.streamlit.app/analises
--   **GitHub:**
-    https://github.com/andersonserrico/Datathon_TerraJourney_Grupo48/tree/main
--   **Apresentação:** A incluir
+🔗 **Acesse a aplicação em produção:** [Clique aqui para abrir o Sistema](https://datathonterrajourneygrupo48-ezv3pfwsutzlalyxhqhfkv.streamlit.app)
+
+🔗 **Apresentação do Modelo, Análises e Aplicação:** [Clique aqui para o link do video](https://drive.google.com/file/d/1rXR_Ip1aPwwlyzRgXXTP1NaM2BXZ8r61/view?usp=drive_link)
+
+
+---
 
 ## Sobre o projeto
 
@@ -215,6 +221,7 @@ Datathon_TerraJourney_Grupo48/
 -   NumPy
 -   openpyxl
 -   Scikit-learn
+-   Scypy
 -   statsmodels
 -   Joblib
 
